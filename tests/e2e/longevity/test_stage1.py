@@ -33,7 +33,7 @@ class TestLongevity(E2ETest):
         # Start application workloads and continuously run the workloads for a specified period of time
         log.info("Start running application workloads")
         start_apps_workload(
-            workloads_list=["pgsql", "couchbase", "cosbench"],
+            workloads_list=["pgsql"],
             run_time=2880,
-            run_in_bg=True,
+            run_in_bg=False,
         )

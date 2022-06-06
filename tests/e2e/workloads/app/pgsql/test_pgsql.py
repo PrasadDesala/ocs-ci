@@ -13,16 +13,6 @@ from ocs_ci.ocs.node import get_node_resource_utilization_from_adm_top
 log = logging.getLogger(__name__)
 
 
-@pytest.fixture(scope="function")
-def pgsql(request):
-
-    pgsql = Postgresql()
-
-    def teardown():
-        pgsql.cleanup()
-
-    request.addfinalizer(teardown)
-    return pgsql
 
 
 @workloads
@@ -34,8 +24,9 @@ class TestPgSQLWorkload(E2ETest):
     run_time = 14400
     total_rows = 1000
 
-    def test_pgsql_without_pgbench(self, pgsql):
+    def test_pgsql_without_pgbench(self):
 
+        pgsql = Postgresql()
         def run_pgsql_command(postgres_pod, command, select=False):
             res = postgres_pod.exec_cmd_on_pod(f'psql -U postgres -c "{command}" ')
             if select:

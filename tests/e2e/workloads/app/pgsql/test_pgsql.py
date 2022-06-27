@@ -7,14 +7,14 @@ import re
 from datetime import datetime, timedelta
 from ocs_ci.ocs import constants
 from ocs_ci.ocs.pgsql import Postgresql
-from ocs_ci.framework.testlib import E2ETest, workloads, google_api_required
+from ocs_ci.framework.testlib import E2ETest, workloads, google_api_required, ignore_leftovers
 from ocs_ci.ocs.node import get_node_resource_utilization_from_adm_top
 
 log = logging.getLogger(__name__)
 
 
 
-
+@ignore_leftovers
 @workloads
 @pytest.mark.polarion_id("OCS-807")
 class TestPgSQLWorkload(E2ETest):
@@ -79,7 +79,10 @@ class TestPgSQLWorkload(E2ETest):
             return "".join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
         # Deployment postgres
-        pgsql.setup_postgresql(replicas=1)
+        try:
+            pgsql.setup_postgresql(replicas=1)
+        except:
+            log.info("PGSQL ALREADY CONFIGURED")
         pgsql.wait_for_postgres_status()
         postgres_pod = pgsql.get_postgres_pods()[0]
         run_pgsql_command(postgres_pod, "\\c testdb")

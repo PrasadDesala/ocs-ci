@@ -48,7 +48,7 @@ class TestPgSQLWorkload(E2ETest):
                 res += f"({row_num}, '{random_username}', '{generate_random_date()}'),"
             run_pgsql_command(
                 postgres_pod,
-                f"INSERT INTO testing1 VALUES {res[:-1]};",
+                f"INSERT INTO testing2 VALUES {res[:-1]};",
             )
 
         def run_update_operation(n, postgres_pod, total_rows):
@@ -56,7 +56,7 @@ class TestPgSQLWorkload(E2ETest):
             run_pgsql_command(
                 postgres_pod,
                 (
-                    f"UPDATE testing1 SET username='{generate_random_string(50)}' "
+                    f"UPDATE testing2 SET username='{generate_random_string(50)}' "
                     f"WHERE row_id in {tuple(random.sample(range(1, total_rows), n))};"
                 ),
             )
@@ -65,7 +65,7 @@ class TestPgSQLWorkload(E2ETest):
             log.info(f"Running {n} delete operations.")
             run_pgsql_command(
                 postgres_pod,
-                f"DELETE FROM testing1 WHERE row_id in {tuple(random.sample(range(1, total_rows), n))};"
+                f"DELETE FROM testing2 WHERE row_id in {tuple(random.sample(range(1, total_rows), n))};"
             )
 
         def generate_random_date(min_year=1900, max_year=datetime.now().year):
@@ -88,10 +88,10 @@ class TestPgSQLWorkload(E2ETest):
         run_pgsql_command(postgres_pod, "\\c testdb")
         run_pgsql_command(
             postgres_pod,
-            "CREATE TABLE testing1 ( row_id INT PRIMARY KEY, username VARCHAR ( 50 ) NOT NULL, date DATE NOT NULL);",
+            "CREATE TABLE testing2 ( row_id INT PRIMARY KEY, username VARCHAR ( 50 ) NOT NULL, date DATE NOT NULL);",
         )
         run_insert_operation(self.total_rows, postgres_pod, 0)
-        run_pgsql_command(postgres_pod, "SELECT * FROM testing1;", True)
+        run_pgsql_command(postgres_pod, "SELECT * FROM testing2;", True)
 
         end_time = datetime.now() + timedelta(minutes=self.run_time)
         while datetime.now() < end_time:
@@ -105,14 +105,14 @@ class TestPgSQLWorkload(E2ETest):
                 run_pgsql_command(
                     postgres_pod,
                     (
-                        f"UPDATE testing1 SET date='{generate_random_date()}' "
+                        f"UPDATE testing2 SET date='{generate_random_date()}' "
                         f"WHERE EXTRACT(YEAR FROM date) = {str(random.randint(1900, datetime.now().year))};"
                     ),
                 )
             else:
                 run_delete_operation(100, postgres_pod, self.total_rows)
 
-        run_pgsql_command(postgres_pod, "DROP TABLE testing1;")
+        run_pgsql_command(postgres_pod, "DROP TABLE testing2;")
 
         # log.info(postgres_pod.exec_cmd_on_pod("psql -U postgres testdb << EOF \\l; select current_user; EOF"))
         # log.info(postgres_pod.exec_cmd_on_pod("echo \'SELECT current_user; CREATE TABLE accounts (

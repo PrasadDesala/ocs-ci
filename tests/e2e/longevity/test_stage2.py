@@ -16,6 +16,7 @@ class TestLongevityStage2(E2ETest):
         project_factory,
         multi_pvc_pod_lifecycle_factory,
         multi_obc_lifecycle_factory,
+        start_apps_workload
     ):
         """
         Tests Longevity Testing - Stage 2
@@ -35,10 +36,17 @@ class TestLongevityStage2(E2ETest):
         # Num of OBCs is set as 0 owing to the BZ https://bugzilla.redhat.com/show_bug.cgi?id=2090968. As soon as the
         # issue gets resolved we will set it back to default.
         long = Longevity()
+        stage1_thread = ThreadPoolExecutor(max_workers=1).submit(
+            start_apps_workload,
+            workloads_list=["pgsql", "cosbench"],
+            run_time=4320,
+        )
         long.stage_2(
             project_factory,
             multi_pvc_pod_lifecycle_factory,
             multi_obc_lifecycle_factory,
             num_of_obcs=0,
-            run_time=180,
+            run_time=4320,
         )
+        stage1_thread.result()
+        logger.info("Workloads completed successfully")

@@ -40,14 +40,14 @@ class TestLongevityStage2(E2ETest):
         stage1_thread = ThreadPoolExecutor(max_workers=1).submit(
             start_apps_workload,
             workloads_list=["pgsql", "cosbench"],
-            run_time=4320,
+            run_time=720,
         )
         long.stage_2(
             project_factory,
             multi_pvc_pod_lifecycle_factory,
             multi_obc_lifecycle_factory,
             num_of_obcs=0,
-            run_time=4320,
+            run_time=720,
         )
         stage1_thread.result()
         logger.info("Workloads completed successfully")
